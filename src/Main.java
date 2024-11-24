@@ -3,6 +3,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+// Representa un punto en el laberinto con coordenadas (x, y)
+
 class Point {
     int x, y;
 
@@ -28,14 +30,14 @@ class Point {
 class Node {
     Point point;
     Node parent;
-    int cost;
-    int heuristic;
-    int totalCost;
-    boolean isObstacle;
-    boolean isStart;
-    boolean isGoal;
-    boolean isVisited;
-    boolean isFrontier;
+    int cost; // Costo acumulado para llegar a este nodo
+    int heuristic; // Heurística (distancia estimada al destino)
+    int totalCost; // Suma del costo y la heurística
+    boolean isObstacle; // Indica si la celda es un obstáculo
+    boolean isStart; // Indica si la celda es el punto de inicio
+    boolean isGoal; // Indica si la celda es el punto de destino
+    boolean isVisited; // Indica si la celda ya fue visitada
+    boolean isFrontier; // Indica si la celda está en la frontera
 
     Node(Point point, int heuristic, boolean isObstacle) {
         this.point = point;
@@ -43,6 +45,7 @@ class Node {
         this.isObstacle = isObstacle;
     }
 }
+// Mapa para rastrear qué celdas ya fueron visitadas
 
 class VisitedMap {
     private final Map<Point, Boolean> data = new HashMap<>();
@@ -56,9 +59,11 @@ class VisitedMap {
     }
 }
 
+// Clase principal que implementa la lógica del laberinto
 public class Main {
     public static void main(String[] args) {
         String labyrinthFile = "C:\\Users\\david\\OneDrive\\Escritorio\\6to semestre\\estructuras de datos clases\\laberintoRecursividad\\laberinto.txt";
+        // Leer todas las líneas del archivo
 
         try {
             List<String> lines = Files.readAllLines(Paths.get(labyrinthFile));
@@ -67,12 +72,15 @@ public class Main {
             int labyrinthCount = 1;
             for (char[][] labyrinth : labyrinths) {
                 System.out.println("Resolviendo laberinto " + labyrinthCount + ":");
+
+                // Encontrar los puntos de inicio y fin
                 Point start = findStart(labyrinth);
                 Point end = findEnd(labyrinth);
 
                 if (start == null || end == null) {
                     System.out.println("No se encontraron las coordenadas de inicio (A) y/o fin (B) en el laberinto");
                 } else {
+                    // Buscar caminos desde el inicio al final
                     List<List<Node>> paths = findPaths(labyrinth, start, end);
                     if (paths.isEmpty()) {
                         System.out.println("No se encontró un camino desde A hasta B.");
@@ -95,13 +103,13 @@ public class Main {
                             Point p = new Point(i, j);
                             boolean isPath = pathPoints.contains(p);
                             if (labyrinth[i][j] == '*') {
-                                System.out.print('*');
+                                System.out.print('*'); // Obstáculo
                             } else if (labyrinth[i][j] == 'A') {
-                                System.out.print('A');
+                                System.out.print('A');  // Inicio
                             } else if (labyrinth[i][j] == 'B') {
-                                System.out.print('B');
+                                System.out.print('B');  // Destino
                             } else {
-                                System.out.print(isPath ? '.' : ' ');
+                                System.out.print(isPath ? '.' : ' '); // Camino o espacio vacío
                             }
                         }
                         System.out.println();
@@ -116,6 +124,7 @@ public class Main {
         }
     }
 
+    // Divide las líneas del archivo en múltiples laberintos
     private static List<char[][]> parseLabyrinths(List<String> lines) {
         List<char[][]>  labyrinths = new ArrayList<>();
         List<String> currentLabyrinthLines = new ArrayList<>();
@@ -140,6 +149,7 @@ public class Main {
         return labyrinths;
     }
 
+    // Encuentra el punto de inicio (A) en el laberinto
     private static Point findStart(char[][] labyrinth) {
         for (int i = 0; i < labyrinth.length; i++) {
             for (int j = 0; j < labyrinth[i].length; j++) {
@@ -151,6 +161,7 @@ public class Main {
         return null;
     }
 
+    // Encuentra el punto de destino (B) en el laberinto
     private static Point findEnd(char[][] labyrinth) {
         for (int i = 0; i < labyrinth.length; i++) {
             for (int j = 0; j < labyrinth[i].length; j++) {
@@ -162,6 +173,7 @@ public class Main {
         return null;
     }
 
+    // Implementación de A* para encontrar los caminos en el laberinto
     private static List<List<Node>> findPaths(char[][] labyrinth, Point start, Point end) {
         Map<Point, Node> graph = new HashMap<>();
         PriorityQueue<Node> frontier = new PriorityQueue<>(Comparator.comparingInt(n -> n.totalCost));
@@ -216,6 +228,9 @@ public class Main {
         return allPaths;
     }
 
+    /**
+     * Reconstruye el camino desde el nodo actual hasta el nodo inicial.
+     */
     private static List<Node> reconstructPath(Node node) {
         List<Node> path = new ArrayList<>();
         while (node != null) {
@@ -225,6 +240,9 @@ public class Main {
         return path;
     }
 
+    /**
+     * Obtiene los vecinos válidos del nodo actual en el laberinto.
+     */
     private static List<Node> getNeighbors(Map<Point, Node> graph, Point p, VisitedMap visited, char[][] labyrinth, Point end) {
         List<Point> directions = Arrays.asList(
                 new Point(-1, 0), // Arriba
@@ -259,6 +277,7 @@ public class Main {
         return neighbors;
     }
 
+    // Método para calcular la heurística
     private static int calculateHeuristic(Point start, Point end) {
         return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     }
