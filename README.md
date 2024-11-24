@@ -49,7 +49,7 @@ Puedes editar el archivo del laberinto según tus necesidades:
 
 ### Formato del Laberinto
 - Cada celda del laberinto debe estar representada por un carácter:
-  - `X` para paredes
+  - `*` para paredes
   - Espacios en blanco para caminos
 
 ## Características Técnicas
